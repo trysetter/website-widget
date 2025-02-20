@@ -1,0 +1,24 @@
+{
+    // Files to exclude from explorer
+    "files.exclude": {
+        "**/.git": true,
+        "**/node_modules": true,
+        "**/dist": true,
+        "**/*.tsbuildinfo": true
+    },
+    // Files to exclude from search
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/dist": true,
+        "**/build": true,
+        "**/*.tsbuildinfo": true
+    },
+    // Files to exclude from watcher
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/**": true,
+        "**/dist/**": true,
+        "**/build/**": true
+    }
+} 

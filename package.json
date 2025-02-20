@@ -1,0 +1,14 @@
+{
+    "name": "chatbot-widget",
+    "version": "1.0.0",
+    "description": "Embeddable chatbot widget",
+    "main": "dist/chatbot-widget.js",
+    "types": "dist/chatbot-widget.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc -w"
+    },
+    "devDependencies": {
+        "typescript": "^5.0.0"
+    }
+} 
