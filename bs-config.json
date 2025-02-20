@@ -1,0 +1,15 @@
+{
+    "port": 3000,
+    "files": ["./src/**/*.{html,htm,css,js,ts}", "./dist/**/*.js"],
+    "server": {
+        "baseDir": "./",
+        "routes": {
+            "/node_modules": "node_modules"
+        }
+    },
+    "watch": true,
+    "watchOptions": {
+        "ignored": ["node_modules", "dist/**/*.d.ts"]
+    },
+    "reloadDelay": 100
+} 

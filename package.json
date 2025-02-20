@@ -6,9 +6,13 @@
     "types": "dist/chatbot-widget.d.ts",
     "scripts": {
         "build": "tsc",
-        "watch": "tsc -w"
+        "watch": "tsc -w",
+        "dev": "concurrently \"npm run watch\" \"lite-server\"",
+        "start": "npm run dev"
     },
     "devDependencies": {
-        "typescript": "^5.0.0"
+        "typescript": "^5.0.0",
+        "lite-server": "^2.6.1",
+        "concurrently": "^8.2.2"
     }
 } 
