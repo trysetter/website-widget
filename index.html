@@ -1,82 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demo Site for Chatbot Testing</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        header {
-            background-color: #f4f4f4;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .content-section {
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        footer {
-            text-align: center;
-            padding: 20px;
-            background-color: #f4f4f4;
-            margin-top: 20px;
-        }
-    </style>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Demo Site for Chatbot Testing</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			line-height: 1.6;
+			margin: 0;
+			padding: 20px;
+			max-width: 1200px;
+			margin: 0 auto;
+		}
+
+		header {
+			background-color: #f4f4f4;
+			padding: 20px;
+			text-align: center;
+			margin-bottom: 20px;
+		}
+
+		.content-section {
+			margin-bottom: 30px;
+			padding: 20px;
+			border: 1px solid #ddd;
+			border-radius: 5px;
+		}
+
+		footer {
+			text-align: center;
+			padding: 20px;
+			background-color: #f4f4f4;
+			margin-top: 20px;
+		}
+	</style>
 </head>
+
 <body>
-    <header>
-        <h1>Welcome to Our Demo Site</h1>
-        <p>This is a sample page for testing our embedded chatbot</p>
-    </header>
+	<header>
+		<h1>Welcome to Our Demo Site</h1>
+		<p>This is a sample page for testing our embedded chatbot</p>
+	</header>
 
-    <main>
-        <section class="content-section">
-            <h2>About Us</h2>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
-        </section>
+	<main>
+		<section class="content-section">
+			<h2>About Us</h2>
+			<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
+				dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+		</section>
 
-        <section class="content-section">
-            <h2>Our Services</h2>
-            <ul>
-                <li>Service 1 - Description goes here</li>
-                <li>Service 2 - Description goes here</li>
-                <li>Service 3 - Description goes here</li>
-            </ul>
-        </section>
+		<section class="content-section">
+			<h2>Our Services</h2>
+			<ul>
+				<li>Service 1 - Description goes here</li>
+				<li>Service 2 - Description goes here</li>
+				<li>Service 3 - Description goes here</li>
+			</ul>
+		</section>
 
-        <section class="content-section">
-            <h2>Contact Information</h2>
-            <p>Email: info@example.com</p>
-            <p>Phone: (555) 123-4567</p>
-            <p>Address: 123 Demo Street, Test City, ST 12345</p>
-        </section>
-    </main>
+		<section class="content-section">
+			<h2>Contact Information</h2>
+			<p>Email: info@example.com</p>
+			<p>Phone: (555) 123-4567</p>
+			<p>Address: 123 Demo Street, Test City, ST 12345</p>
+		</section>
+	</main>
 
-    <footer>
-        <p>&copy; 2024 Demo Site. All rights reserved.</p>
-    </footer>
+	<footer>
+		<p>&copy; 2024 Demo Site. All rights reserved.</p>
+	</footer>
 
-    <!-- Chatbot Widget Script -->
-    <script type="module">
-        import ChatbotWidget from './dist/chatbot-widget.js';
-        
-        // Initialize the chatbot widget with custom config (optional)
-        const chatbot = new ChatbotWidget({
-            colors: {
-                primary: '#0084ff',
-                iconFill: 'white'
-            }
-        });
-    </script>
+	<!-- Chatbot Widget Script -->
+	<script type="module">
+		import ChatbotWidget from './dist/chatbot-widget.js';
+
+		// Initialize the chatbot widget with custom config (optional)
+		const chatbot = new ChatbotWidget({
+			colors: {
+				primary: '#0084ff',
+				iconFill: 'white'
+			}
+		});
+	</script>
 </body>
-</html> 
+
+</html>
