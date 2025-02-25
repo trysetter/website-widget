@@ -205,7 +205,7 @@ class ChatbotWidget {
         // Create iframe
         const iframe = document.createElement('iframe');
         iframe.className = 'chatbot-iframe';
-        iframe.src = 'https://trysetter.com';  // Temporary URL for testing
+        iframe.src = 'https://127.0.0.1:5173/p/embed/29/chat';  // Temporary URL for testing
         iframe.setAttribute('frameborder', '0');
         iframe.setAttribute('allow', 'microphone; camera');
 
