@@ -54,11 +54,11 @@ jobs:
       - name: Switch to release branch
         run: |
           # Try to check out the branch; if it doesn't exist, create it as an orphan branch.
-          if git show-ref --verify --quiet refs/heads/release-branch; then
-            git checkout release-branch
+          if git show-ref --verify --quiet refs/heads/releases; then
+            git checkout releases
             git rm -rf . > /dev/null 2>&1 || true
           else
-            git checkout --orphan release-branch
+            git checkout --orphan releases
             git rm -rf . > /dev/null 2>&1 || true
           fi
 
@@ -75,4 +75,4 @@ jobs:
           git add .
           # Use "--allow-empty" to avoid failure if there are no changes.
           git commit -m "Deploy built files from commit ${{ github.sha }}" --allow-empty
-          git push origin release-branch --force
+          git push origin releases --force
