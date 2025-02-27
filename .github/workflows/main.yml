@@ -1,0 +1,29 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+    - run: npm install
+    - run: npm run build
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Publish to GitHub Pages/Archive/Other CDNs
+      run: |
+         # Your deployment script here
