@@ -12,24 +12,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository
-      - uses: actions/checkout@v2
-      
-      # Set up Node.js environment
+      # 1) Checkout code
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      # 2) Set up Node.js
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: '16'
-      
-      # Install dependencies
+
+      # 3) Install and build
       - run: npm install
-      
-      # Build the project (ensure that this outputs to the "dist" folder)
       - run: npm run build
-      
-      # Upload the built "dist" folder as an artifact for the next job
+
+      # 4) Upload “dist” as artifact
       - name: Upload dist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: dist
           path: dist/
@@ -37,42 +37,48 @@ jobs:
   publish:
     needs: build
     runs-on: ubuntu-latest
+
     steps:
-      # Checkout the repository with full history (needed for branch switching)
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      # 1) Checkout repo with full history
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      # Download the built "dist" folder from the previous job
+      # 2) Download the dist artifact to a temp folder
       - name: Download dist artifact
         uses: actions/download-artifact@v4
         with:
           name: dist
+          path: _dist_artifact
 
-      # Switch to the target release branch (creating it if necessary)
-      - name: Switch to release branch
+      # 3) Debug step – confirm downloaded build output
+      - name: List downloaded files
+        run: ls -R _dist_artifact
+
+      # 4) Switch to (or create) the “releases” branch and remove old files
+      - name: Switch to releases branch
         run: |
-          # Try to check out the branch; if it doesn't exist, create it as an orphan branch.
           if git show-ref --verify --quiet refs/heads/releases; then
             git checkout releases
-            git rm -rf . > /dev/null 2>&1 || true
           else
             git checkout --orphan releases
-            git rm -rf . > /dev/null 2>&1 || true
           fi
 
-      # Copy the contents of the "dist" folder to the repository root
-      - name: Copy dist files to root
-        run: |
-          cp -R dist/* .
-      
-      # Commit and push the changes to the release branch
+          # Remove tracked files in this branch
+          git rm -rf . || true
+
+          # Remove any leftover untracked files except .git and _dist_artifact
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name '_dist_artifact' -exec rm -rf {} +
+
+      # 5) Copy built files into repo root
+      - name: Copy dist to root
+        run: cp -R _dist_artifact/* .
+
+      # 6) Commit and push built files
       - name: Commit and push built files
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
           git add .
-          # Use "--allow-empty" to avoid failure if there are no changes.
           git commit -m "Deploy built files from commit ${{ github.sha }}" --allow-empty
           git push origin releases --force
