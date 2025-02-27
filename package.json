@@ -8,7 +8,7 @@
         "build": "tsc",
         "watch": "tsc -w",
         "dev": "concurrently \"npm run watch\" \"lite-server\"",
-        "start": "npm run dev"
+        "start": "npm run build && lite-server"
     },
     "devDependencies": {
         "typescript": "^5.0.0",
