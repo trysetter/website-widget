@@ -126,8 +126,8 @@ class ChatbotWidget {
                 position: fixed;
                 bottom: calc(${this.config.position?.bottom} + 70px);
                 right: ${this.config.position?.right};
-                width: 350px;
-                height: 500px;
+                width: 450px;
+                height: 800px;
                 background: white;
                 border-radius: 12px;
                 box-shadow: 0 5px 40px rgba(0, 0, 0, 0.16);
