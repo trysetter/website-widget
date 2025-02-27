@@ -26,7 +26,7 @@ Include the compiled script in your HTML:
 
 ```html
 <script type="module">
-    import ChatbotWidget from './dist/chatbot-widget.js';
+    import ChatbotWidget from 'https://cdn.jsdelivr.net/gh/trysetter/website-widget@releases/chatbot-widget.js';
     
     // Initialize with default settings
     const chatbot = new ChatbotWidget();
