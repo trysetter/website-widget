@@ -77,14 +77,13 @@
 		import ChatbotWidget from 'https://cdn.jsdelivr.net/gh/trysetter/website-widget@releases/chatbot-widget.js';
 
 		// Initialize the chatbot widget with custom config (optional)
-		const chatbot = new ChatbotWidget(
-			{
-				colors: {
-					primary: '#0084ff',
-					iconFill: 'white'
-				}
-			}
-		);
+		const chatbot = new ChatbotWidget({
+			colors: {
+				primary: '#0084ff',
+				iconFill: 'white'
+			},
+			botIntegrationId: '29' // Specify which bot to use
+		});
 	</script>
 </body>
 

@@ -11,6 +11,7 @@ interface ChatbotWidgetConfig {
         width?: string;
         height?: string;
     };
+    botIntegrationId?: string;
 }
 
 class ChatbotWidget {
@@ -37,7 +38,8 @@ class ChatbotWidget {
                 width: '60px',
                 height: '60px',
                 ...config.size
-            }
+            },
+            botIntegrationId: config.botIntegrationId || '1' // Default to '1' if not provided
         };
 
         this.initialize();
@@ -202,10 +204,10 @@ class ChatbotWidget {
         const chatWindow = document.createElement('div');
         chatWindow.className = 'chatbot-window';
         
-        // Create iframe
+        // Create iframe with dynamic botId
         const iframe = document.createElement('iframe');
         iframe.className = 'chatbot-iframe';
-        iframe.src = 'https://127.0.0.1:5173/p/embed/29/chat';  // Temporary URL for testing
+        iframe.src = `https://127.0.0.1:5173/p/embed/${this.config.botIntegrationId}/chat`;
         iframe.setAttribute('frameborder', '0');
         iframe.setAttribute('allow', 'microphone; camera');
 

@@ -44,7 +44,8 @@ Include the compiled script in your HTML:
         size: {
             width: '60px',
             height: '60px'
-        }
+        },
+        botIntegrationId: '29' // Specify which bot integration to use
     });
 </script>
 ```
@@ -76,6 +77,7 @@ interface ChatbotWidgetConfig {
         width?: string;
         height?: string;
     };
+    botIntegraionId?: string; // ID of the bot integration to use
 }
 ```
 
