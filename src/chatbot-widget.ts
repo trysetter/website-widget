@@ -21,6 +21,7 @@ class ChatbotWidget {
     private chatWindow: HTMLDivElement | null = null;
     private chatButton: HTMLDivElement | null = null;
     private isOpen: boolean = false;
+    private resizeHandler: (() => void) | null = null;
 
     constructor(config: ChatbotWidgetConfig = {}) {
         this.config = {
@@ -57,6 +58,13 @@ class ChatbotWidget {
         this.injectStyles();
         this.createButton();
         this.createChatWindow();
+
+        // Add window resize listener
+        this.resizeHandler = this.handleResize.bind(this);
+        window.addEventListener('resize', this.resizeHandler);
+        
+        // Initial resize handling
+        this.handleResize();
 
         // Add the container to the page
         document.body.appendChild(this.container);
@@ -129,7 +137,8 @@ class ChatbotWidget {
                 bottom: calc(${this.config.position?.bottom} + 70px);
                 right: ${this.config.position?.right};
                 width: 450px;
-                height: 800px;
+                height: 70vh;
+                max-height: 800px;
                 background: white;
                 border-radius: 12px;
                 box-shadow: 0 5px 40px rgba(0, 0, 0, 0.16);
@@ -140,6 +149,15 @@ class ChatbotWidget {
                 opacity: 0;
                 transform: translateY(20px) scale(0.95);
                 transition: transform 0.2s ease, opacity 0.2s ease;
+            }
+
+            .chatbot-window.mobile {
+                width: 100%;
+                height: 100vh;
+                bottom: 0;
+                right: 0;
+                border-radius: 0;
+                max-height: none;
             }
 
             .chatbot-window.open {
@@ -172,6 +190,34 @@ class ChatbotWidget {
 
             .chatbot-footer a:hover {
                 text-decoration: underline;
+            }
+
+            /* Responsive styles */
+            @media (max-width: 768px) {
+                .chatbot-window:not(.mobile) {
+                    width: 90%;
+                    right: 5%;
+                    bottom: calc(${this.config.position?.bottom} + 70px);
+                    height: 60vh;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .chatbot-window:not(.mobile) {
+                    width: calc(100% - 20px);
+                    right: 10px;
+                    left: 10px;
+                    bottom: calc(${this.config.position?.bottom} + 70px);
+                    height: 70vh;
+                    border-radius: 12px 12px 0 0;
+                }
+                
+                .chatbot-window.mobile {
+                    width: 100%;
+                    padding-left: 10px;
+                    padding-right: 10px;
+                    box-sizing: border-box;
+                }
             }
         `;
 
@@ -239,9 +285,24 @@ class ChatbotWidget {
         if (this.isOpen) {
             this.chatWindow.classList.add('open');
             this.chatButton.classList.add('open');
+            this.handleResize(); // Ensure correct sizing when opening
         } else {
             this.chatWindow.classList.remove('open');
             this.chatButton.classList.remove('open');
+        }
+    }
+
+    private handleResize(): void {
+        // Skip if chat window doesn't exist
+        if (!this.chatWindow) return;
+
+        // Check if we're on a very small screen (mobile)
+        const isMobile = window.matchMedia('(max-width: 480px) and (max-height: 750px)').matches;
+        
+        if (isMobile) {
+            this.chatWindow.classList.add('mobile');
+        } else {
+            this.chatWindow.classList.remove('mobile');
         }
     }
 
@@ -259,6 +320,7 @@ class ChatbotWidget {
             this.isOpen = true;
             this.chatWindow.classList.add('open');
             this.chatButton.classList.add('open');
+            this.handleResize(); // Ensure correct sizing when opening
         }
     }
 
@@ -267,6 +329,18 @@ class ChatbotWidget {
             this.isOpen = false;
             this.chatWindow.classList.remove('open');
             this.chatButton.classList.remove('open');
+        }
+    }
+
+    // Clean up event listeners when widget is destroyed
+    public destroy(): void {
+        if (this.resizeHandler) {
+            window.removeEventListener('resize', this.resizeHandler);
+            this.resizeHandler = null;
+        }
+
+        if (this.container && this.container.parentNode) {
+            this.container.parentNode.removeChild(this.container);
         }
     }
 }
