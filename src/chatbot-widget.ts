@@ -440,6 +440,9 @@ class ChatbotWidget {
             chatWindow.appendChild(devModeLabel);
         }
 
+		// Append iframe to chat window
+        chatWindow.appendChild(iframe);
+
         // Create footer with backlink only if hideBranding is false
         if (!this.hideBranding) {
             const footer = document.createElement('div');
@@ -453,9 +456,6 @@ class ChatbotWidget {
             footer.innerHTML = `Powered by <a href="https://trysetter.com/?${analyticsParams.toString()}" target="_blank" rel="noopener">Setter AI</a>`;
             chatWindow.appendChild(footer);
         }
-
-        // Append iframe to chat window
-        chatWindow.appendChild(iframe);
         
         // Store reference to chat window
         this.chatWindow = chatWindow;
