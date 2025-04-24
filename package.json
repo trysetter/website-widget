@@ -11,8 +11,8 @@
         "start": "npm run build && lite-server"
     },
     "devDependencies": {
-        "typescript": "^5.0.0",
+        "concurrently": "^8.2.2",
         "lite-server": "^2.6.1",
-        "concurrently": "^8.2.2"
+        "typescript": "^5.0.0"
     }
-} 
+}

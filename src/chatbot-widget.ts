@@ -12,7 +12,10 @@ interface ChatbotWidgetConfig {
         height?: string;
     };
     botIntegrationId?: string;
+	baseUrl?: string;
 }
+
+const DEFAULT_BASE_URL = 'https://chat.trysetter.com';
 
 class ChatbotWidget {
     private container!: HTMLDivElement;
@@ -22,8 +25,16 @@ class ChatbotWidget {
     private chatButton: HTMLDivElement | null = null;
     private isOpen: boolean = false;
     private resizeHandler: (() => void) | null = null;
+    private hasValidConfig: boolean = false;
 
     constructor(config: ChatbotWidgetConfig = {}) {
+        if (!config.botIntegrationId) {
+            console.error(`[Setter AI] Website widget: 'botIntegrationId' is required for initialization`);
+            this.hasValidConfig = false;
+        } else {
+            this.hasValidConfig = true;
+        }
+        
         this.config = {
             position: {
                 bottom: '20px',
@@ -40,10 +51,13 @@ class ChatbotWidget {
                 height: '60px',
                 ...config.size
             },
-            botIntegrationId: config.botIntegrationId || '1' // Default to '1' if not provided
+            botIntegrationId: config.botIntegrationId,
+            baseUrl: config.baseUrl ?? DEFAULT_BASE_URL,
         };
 
-        this.initialize();
+        if (this.hasValidConfig) {
+            this.initialize();
+        }
     }
 
     private initialize(): void {
@@ -149,6 +163,21 @@ class ChatbotWidget {
                 opacity: 0;
                 transform: translateY(20px) scale(0.95);
                 transition: transform 0.2s ease, opacity 0.2s ease;
+            }
+
+            .dev-mode-label {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                background-color: #FF5722;
+                color: white;
+                font-size: 12px;
+                padding: 4px 8px;
+                border-radius: 4px;
+                z-index: 10;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                pointer-events: none;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             }
 
             .chatbot-window.mobile {
@@ -354,9 +383,17 @@ class ChatbotWidget {
         // Create iframe with dynamic botId
         const iframe = document.createElement('iframe');
         iframe.className = 'chatbot-iframe';
-        iframe.src = `https://chat.trysetter.com/p/embed/${this.config.botIntegrationId}/chat`;
+        iframe.src = `${this.config.baseUrl}/p/embed/${this.config.botIntegrationId}/chat`;
         iframe.setAttribute('frameborder', '0');
         iframe.setAttribute('allow', 'microphone; camera');
+
+        // Create dev mode label if custom base URL is used
+        if (this.config.baseUrl !== DEFAULT_BASE_URL) {
+            const devModeLabel = document.createElement('div');
+            devModeLabel.className = 'dev-mode-label';
+            devModeLabel.textContent = 'DEV MODE';
+            chatWindow.appendChild(devModeLabel);
+        }
 
         // Create footer with backlink
         const footer = document.createElement('div');
