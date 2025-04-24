@@ -15,6 +15,14 @@ interface ChatbotWidgetConfig {
 	baseUrl?: string;
 }
 
+// Add response interface
+interface ConfigurationResponse {
+    data: {
+        hideBranding: boolean;
+        [key: string]: any;
+    };
+}
+
 const DEFAULT_BASE_URL = 'https://chat.trysetter.com';
 
 class ChatbotWidget {
@@ -26,6 +34,8 @@ class ChatbotWidget {
     private isOpen: boolean = false;
     private resizeHandler: (() => void) | null = null;
     private hasValidConfig: boolean = false;
+    private hideBranding: boolean = false;
+    private configFetched: boolean = false;
 
     constructor(config: ChatbotWidgetConfig = {}) {
         if (!config.botIntegrationId) {
@@ -56,11 +66,11 @@ class ChatbotWidget {
         };
 
         if (this.hasValidConfig) {
-            this.initialize();
+            this.initializeAsync();
         }
     }
 
-    private initialize(): void {
+    private async initializeAsync(): Promise<void> {
         // Create container element
         this.container = document.createElement('div');
         this.container.id = 'chatbot-widget-container';
@@ -68,6 +78,9 @@ class ChatbotWidget {
         // Create and attach shadow DOM
         this.shadow = this.container.attachShadow({ mode: 'open' });
 
+        // Fetch configuration from API
+        await this.fetchConfiguration();
+        
         // Add styles and components
         this.injectStyles();
         this.createButton();
@@ -82,6 +95,38 @@ class ChatbotWidget {
 
         // Add the container to the page
         document.body.appendChild(this.container);
+    }
+
+    private async fetchConfiguration(): Promise<void> {
+        if (!this.config.botIntegrationId || !this.config.baseUrl) return;
+
+        const url = `${this.config.baseUrl}/api/v1/bot-integrations/${this.config.botIntegrationId}/website-widget/configuration`;
+        
+        const errorHandler = (error: any) => {
+            console.error('[Setter AI] Failed to fetch configuration:', error);
+            // Proceed with default settings
+            this.configFetched = true;
+        };
+
+        try {
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                errorHandler(new Error(`HTTP error! status: ${response.status}`));
+                return;
+            }
+            
+            const data = await response.json() as ConfigurationResponse;
+            
+            // Update config with fetched values
+            if (data && data.data) {
+                this.hideBranding = data.data.hideBranding;
+            }
+            
+            this.configFetched = true;
+        } catch (error) {
+            errorHandler(error);
+        }
     }
 
     private injectStyles(): void {
@@ -395,20 +440,22 @@ class ChatbotWidget {
             chatWindow.appendChild(devModeLabel);
         }
 
-        // Create footer with backlink
-        const footer = document.createElement('div');
-        footer.className = 'chatbot-footer';
-        const analyticsParams = new URLSearchParams({
-            utm_source: 'chat_widget',
-            utm_medium: 'referral',
-            utm_campaign: 'powered_by',
-            ref: window.location.hostname
-        });
-        footer.innerHTML = `Powered by <a href="https://trysetter.com/?${analyticsParams.toString()}" target="_blank" rel="noopener">Setter AI</a>`;
+        // Create footer with backlink only if hideBranding is false
+        if (!this.hideBranding) {
+            const footer = document.createElement('div');
+            footer.className = 'chatbot-footer';
+            const analyticsParams = new URLSearchParams({
+                utm_source: 'chat_widget',
+                utm_medium: 'referral',
+                utm_campaign: 'powered_by',
+                ref: window.location.hostname
+            });
+            footer.innerHTML = `Powered by <a href="https://trysetter.com/?${analyticsParams.toString()}" target="_blank" rel="noopener">Setter AI</a>`;
+            chatWindow.appendChild(footer);
+        }
 
-        // Append components to chat window
+        // Append iframe to chat window
         chatWindow.appendChild(iframe);
-        chatWindow.appendChild(footer);
         
         // Store reference to chat window
         this.chatWindow = chatWindow;
