@@ -12,7 +12,18 @@ interface ChatbotWidgetConfig {
         height?: string;
     };
     botIntegrationId?: string;
+	baseUrl?: string;
 }
+
+// Add response interface
+interface ConfigurationResponse {
+    data: {
+        hideBranding: boolean;
+        [key: string]: any;
+    };
+}
+
+const DEFAULT_BASE_URL = 'https://chat.trysetter.com';
 
 class ChatbotWidget {
     private container!: HTMLDivElement;
@@ -22,8 +33,18 @@ class ChatbotWidget {
     private chatButton: HTMLDivElement | null = null;
     private isOpen: boolean = false;
     private resizeHandler: (() => void) | null = null;
+    private hasValidConfig: boolean = false;
+    private hideBranding: boolean = false;
+    private configFetched: boolean = false;
 
     constructor(config: ChatbotWidgetConfig = {}) {
+        if (!config.botIntegrationId) {
+            console.error(`[Setter AI] Website widget: 'botIntegrationId' is required for initialization`);
+            this.hasValidConfig = false;
+        } else {
+            this.hasValidConfig = true;
+        }
+        
         this.config = {
             position: {
                 bottom: '20px',
@@ -40,13 +61,16 @@ class ChatbotWidget {
                 height: '60px',
                 ...config.size
             },
-            botIntegrationId: config.botIntegrationId || '1' // Default to '1' if not provided
+            botIntegrationId: config.botIntegrationId,
+            baseUrl: config.baseUrl ?? DEFAULT_BASE_URL,
         };
 
-        this.initialize();
+        if (this.hasValidConfig) {
+            this.initializeAsync();
+        }
     }
 
-    private initialize(): void {
+    private async initializeAsync(): Promise<void> {
         // Create container element
         this.container = document.createElement('div');
         this.container.id = 'chatbot-widget-container';
@@ -54,6 +78,9 @@ class ChatbotWidget {
         // Create and attach shadow DOM
         this.shadow = this.container.attachShadow({ mode: 'open' });
 
+        // Fetch configuration from API
+        await this.fetchConfiguration();
+        
         // Add styles and components
         this.injectStyles();
         this.createButton();
@@ -68,6 +95,38 @@ class ChatbotWidget {
 
         // Add the container to the page
         document.body.appendChild(this.container);
+    }
+
+    private async fetchConfiguration(): Promise<void> {
+        if (!this.config.botIntegrationId || !this.config.baseUrl) return;
+
+        const url = `${this.config.baseUrl}/api/v1/bot-integrations/${this.config.botIntegrationId}/website-widget/configuration`;
+        
+        const errorHandler = (error: any) => {
+            console.error('[Setter AI] Failed to fetch configuration:', error);
+            // Proceed with default settings
+            this.configFetched = true;
+        };
+
+        try {
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                errorHandler(new Error(`HTTP error! status: ${response.status}`));
+                return;
+            }
+            
+            const data = await response.json() as ConfigurationResponse;
+            
+            // Update config with fetched values
+            if (data && data.data) {
+                this.hideBranding = data.data.hideBranding;
+            }
+            
+            this.configFetched = true;
+        } catch (error) {
+            errorHandler(error);
+        }
     }
 
     private injectStyles(): void {
@@ -149,6 +208,21 @@ class ChatbotWidget {
                 opacity: 0;
                 transform: translateY(20px) scale(0.95);
                 transition: transform 0.2s ease, opacity 0.2s ease;
+            }
+
+            .dev-mode-label {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                background-color: #FF5722;
+                color: white;
+                font-size: 12px;
+                padding: 4px 8px;
+                border-radius: 4px;
+                z-index: 10;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                pointer-events: none;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             }
 
             .chatbot-window.mobile {
@@ -354,24 +428,34 @@ class ChatbotWidget {
         // Create iframe with dynamic botId
         const iframe = document.createElement('iframe');
         iframe.className = 'chatbot-iframe';
-        iframe.src = `https://chat.trysetter.com/p/embed/${this.config.botIntegrationId}/chat`;
+        iframe.src = `${this.config.baseUrl}/p/embed/${this.config.botIntegrationId}/chat`;
         iframe.setAttribute('frameborder', '0');
         iframe.setAttribute('allow', 'microphone; camera');
 
-        // Create footer with backlink
-        const footer = document.createElement('div');
-        footer.className = 'chatbot-footer';
-        const analyticsParams = new URLSearchParams({
-            utm_source: 'chat_widget',
-            utm_medium: 'referral',
-            utm_campaign: 'powered_by',
-            ref: window.location.hostname
-        });
-        footer.innerHTML = `Powered by <a href="https://trysetter.com/?${analyticsParams.toString()}" target="_blank" rel="noopener">Setter AI</a>`;
+        // Create dev mode label if custom base URL is used
+        if (this.config.baseUrl !== DEFAULT_BASE_URL) {
+            const devModeLabel = document.createElement('div');
+            devModeLabel.className = 'dev-mode-label';
+            devModeLabel.textContent = 'DEV MODE';
+            chatWindow.appendChild(devModeLabel);
+        }
 
-        // Append components to chat window
+		// Append iframe to chat window
         chatWindow.appendChild(iframe);
-        chatWindow.appendChild(footer);
+
+        // Create footer with backlink only if hideBranding is false
+        if (!this.hideBranding) {
+            const footer = document.createElement('div');
+            footer.className = 'chatbot-footer';
+            const analyticsParams = new URLSearchParams({
+                utm_source: 'chat_widget',
+                utm_medium: 'referral',
+                utm_campaign: 'powered_by',
+                ref: window.location.hostname
+            });
+            footer.innerHTML = `Powered by <a href="https://trysetter.com/?${analyticsParams.toString()}" target="_blank" rel="noopener">Setter AI</a>`;
+            chatWindow.appendChild(footer);
+        }
         
         // Store reference to chat window
         this.chatWindow = chatWindow;
