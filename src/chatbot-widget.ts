@@ -27,7 +27,6 @@ const DEFAULT_BASE_URL = 'https://chat.trysetter.com';
 
 class ChatbotWidget {
     private container!: HTMLDivElement;
-    private shadow!: ShadowRoot;
     private config: ChatbotWidgetConfig;
     private chatWindow: HTMLDivElement | null = null;
     private chatButton: HTMLDivElement | null = null;
@@ -75,9 +74,6 @@ class ChatbotWidget {
         this.container = document.createElement('div');
         this.container.id = 'chatbot-widget-container';
         
-        // Create and attach shadow DOM
-        this.shadow = this.container.attachShadow({ mode: 'open' });
-
         // Fetch configuration from API
         await this.fetchConfiguration();
         
@@ -130,9 +126,18 @@ class ChatbotWidget {
     }
 
     private injectStyles(): void {
+        const styleId = 'chatbot-widget-styles';
+        
+        // Remove existing style if it exists
+        const existingStyle = document.getElementById(styleId);
+        if (existingStyle) {
+            existingStyle.remove();
+        }
+        
         const styles = document.createElement('style');
+        styles.id = styleId;
         styles.textContent = `
-            .chatbot-widget-button {
+            #chatbot-widget-container .chatbot-widget-button {
                 position: fixed;
                 bottom: ${this.config.position?.bottom};
                 right: ${this.config.position?.right};
@@ -158,40 +163,40 @@ class ChatbotWidget {
                 box-sizing: border-box;
             }
 
-            .chatbot-widget-button:hover {
+            #chatbot-widget-container .chatbot-widget-button:hover {
                 transform: scale(1.05);
             }
 
-            .chatbot-widget-button svg {
+            #chatbot-widget-container .chatbot-widget-button svg {
                 width: 32px;
                 height: 32px;
                 fill: ${this.config.colors?.iconFill};
                 transition: opacity 0.3s ease, transform 0.3s ease;
             }
 
-            .chatbot-widget-button .chat-icon,
-            .chatbot-widget-button .close-icon {
+            #chatbot-widget-container .chatbot-widget-button .chat-icon,
+            #chatbot-widget-container .chatbot-widget-button .close-icon {
                 position: absolute;
                 opacity: 1;
                 transform: rotate(0deg) scale(1);
             }
 
-            .chatbot-widget-button .close-icon {
+            #chatbot-widget-container .chatbot-widget-button .close-icon {
                 opacity: 0;
                 transform: rotate(-180deg) scale(0.5);
             }
 
-            .chatbot-widget-button.open .chat-icon {
+            #chatbot-widget-container .chatbot-widget-button.open .chat-icon {
                 opacity: 0;
                 transform: rotate(180deg) scale(0.5);
             }
 
-            .chatbot-widget-button.open .close-icon {
+            #chatbot-widget-container .chatbot-widget-button.open .close-icon {
                 opacity: 1;
                 transform: rotate(0deg) scale(1);
             }
 
-            .chatbot-window {
+            #chatbot-widget-container .chatbot-window {
                 position: fixed;
                 bottom: calc(${this.config.position?.bottom} + 70px);
                 right: ${this.config.position?.right};
@@ -210,7 +215,7 @@ class ChatbotWidget {
                 transition: transform 0.2s ease, opacity 0.2s ease;
             }
 
-            .dev-mode-label {
+            #chatbot-widget-container .dev-mode-label {
                 position: absolute;
                 top: 10px;
                 left: 10px;
@@ -225,7 +230,7 @@ class ChatbotWidget {
                 box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             }
 
-            .chatbot-window.mobile {
+            #chatbot-widget-container .chatbot-window.mobile {
                 width: 100%;
                 /* Use a more conservative height calculation */
                 height: calc(100vh - env(safe-area-inset-top, 50px));
@@ -244,32 +249,32 @@ class ChatbotWidget {
                 padding: 0;
             }
 
-            .chatbot-window.open {
+            #chatbot-widget-container .chatbot-window.open {
                 display: flex;
                 opacity: 1;
                 transform: translateY(0) scale(1);
             }
 
-            .chatbot-window-header {
+            #chatbot-widget-container .chatbot-window-header {
                 display: none;
             }
 
-            .chatbot-window.mobile .chatbot-window-header {
+            #chatbot-widget-container .chatbot-window.mobile .chatbot-window-header {
                 display: none;
             }
 
-            .chatbot-close-btn {
+            #chatbot-widget-container .chatbot-close-btn {
                 display: none;
             }
 
             /* Don't hide floating button when chat window is open on mobile */
             @media (max-width: 480px) {
-                .chatbot-window.mobile.open + .chatbot-widget-button {
+                #chatbot-widget-container .chatbot-window.mobile.open + .chatbot-widget-button {
                     display: flex;
                 }
             }
 
-            .chatbot-iframe {
+            #chatbot-widget-container .chatbot-iframe {
                 flex: 1;
                 width: 100%;
                 border: none;
@@ -279,7 +284,7 @@ class ChatbotWidget {
                 margin: 0;
             }
 
-            .chatbot-footer {
+            #chatbot-widget-container .chatbot-footer {
                 padding: 8px;
                 text-align: center;
                 font-size: 12px;
@@ -294,17 +299,17 @@ class ChatbotWidget {
                 margin: 0;
             }
 
-            .chatbot-footer a {
+            #chatbot-widget-container .chatbot-footer a {
                 color: ${this.config.colors?.primary};
                 text-decoration: none;
                 font-weight: 500;
             }
 
-            .chatbot-footer a:hover {
+            #chatbot-widget-container .chatbot-footer a:hover {
                 text-decoration: underline;
             }
 
-            .chatbot-window.ios-safari {
+            #chatbot-widget-container .chatbot-window.ios-safari {
                 /* Modified height calculation for iOS Safari */
                 height: calc(100vh - 50px);
                 /* Create space at the bottom using padding on the container instead */
@@ -313,26 +318,26 @@ class ChatbotWidget {
 
             /* Adjust mobile window to make space for the button */
             @media (max-width: 480px) {
-                .chatbot-window.mobile {
+                #chatbot-widget-container .chatbot-window.mobile {
                     height: calc(100vh - 90px - env(safe-area-inset-top, 50px));
                     max-height: calc(100% - 90px); /* Ensure it doesn't overflow viewport */
                     bottom: 90px; /* Space for button + some padding */
                     padding: 0;
                 }
                 
-                .chatbot-widget-button {
+                #chatbot-widget-container .chatbot-widget-button {
                     z-index: 2147483648; /* Ensure button is above window */
                     /* Ensure the button stays visible regardless of toolbars */
                     position: fixed !important;
                     bottom: calc(env(safe-area-inset-bottom, 0px) + 15px) !important; /* Add extra padding above toolbar */
                 }
                 
-                .chatbot-iframe {
+                #chatbot-widget-container .chatbot-iframe {
                     padding: 0;
                     margin: 0;
                 }
                 
-                .chatbot-footer {
+                #chatbot-widget-container .chatbot-footer {
                     margin: 0;
                     border-radius: 0;
                 }
@@ -340,7 +345,7 @@ class ChatbotWidget {
 
             /* Responsive styles */
             @media (max-width: 768px) {
-                .chatbot-window:not(.mobile) {
+                #chatbot-widget-container .chatbot-window:not(.mobile) {
                     width: 90%;
                     right: 5%;
                     bottom: calc(${this.config.position?.bottom} + 70px);
@@ -349,7 +354,7 @@ class ChatbotWidget {
             }
 
             @media (max-width: 480px) {
-                .chatbot-window:not(.mobile) {
+                #chatbot-widget-container .chatbot-window:not(.mobile) {
                     width: calc(100% - 20px);
                     right: 10px;
                     left: 10px;
@@ -358,21 +363,21 @@ class ChatbotWidget {
                     border-radius: 12px 12px 0 0;
                 }
                 
-                .chatbot-window.mobile {
+                #chatbot-widget-container .chatbot-window.mobile {
                     width: 100%;
                     padding: 0;
                     box-sizing: border-box;
                     border-radius: 12px 12px 0 0; /* Rounded corners at top */
                 }
                 
-                .chatbot-window.ios-safari {
+                #chatbot-widget-container .chatbot-window.ios-safari {
                     /* A better approach is to handle this with iframe and footer styling */
                     padding-bottom: 0;
                 }
             }
         `;
 
-        this.shadow.appendChild(styles);
+        document.head.appendChild(styles);
     }
 
     private createButton(): void {
@@ -394,7 +399,7 @@ class ChatbotWidget {
 
         // Store reference to button
         this.chatButton = chatButton;
-        this.shadow.appendChild(chatButton);
+        this.container.appendChild(chatButton);
     }
 
     private createChatWindow(): void {
@@ -460,7 +465,7 @@ class ChatbotWidget {
         // Store reference to chat window
         this.chatWindow = chatWindow;
         
-        this.shadow.appendChild(chatWindow);
+        this.container.appendChild(chatWindow);
     }
 
     private handleClick(): void {
@@ -625,6 +630,12 @@ class ChatbotWidget {
         
         // Remove toolbar adjustment listener if it exists
         window.removeEventListener('resize', this.adjustForToolbars.bind(this));
+
+        // Remove styles from head
+        const styleElement = document.getElementById('chatbot-widget-styles');
+        if (styleElement) {
+            styleElement.remove();
+        }
 
         if (this.container && this.container.parentNode) {
             this.container.parentNode.removeChild(this.container);
