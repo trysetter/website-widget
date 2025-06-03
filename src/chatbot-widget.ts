@@ -424,7 +424,6 @@ class ChatbotWidget {
                 border: none;
                 padding: 0;
                 margin: 0;
-                overflow: hidden;
                 box-sizing: border-box;
             }
 
@@ -465,6 +464,24 @@ class ChatbotWidget {
                 opacity: 1;
                 transform: rotate(0deg) scale(1);
             }
+
+            #chatbot-widget-container .chatbot-widget-button .availability-indicator {
+                position: absolute;
+                bottom: -2px;
+                right: -2px;
+                width: 12px;
+                height: 12px;
+                background-color: #00C851;
+                border: 2px solid white;
+                border-radius: 50%;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+                transition: opacity 0.3s ease;
+                z-index: 1;
+            }
+
+            #chatbot-widget-container .chatbot-widget-button.open .availability-indicator {
+                opacity: 0;
+            }
         `;
     }
 
@@ -495,6 +512,7 @@ class ChatbotWidget {
         const imageUrl = `/src/assets/live_agent_woman_face.png`;
         return `
             <img src="${imageUrl}" alt="Live Agent" class="live-agent-image" />
+            <div class="availability-indicator"></div>
             <svg class="close-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
             </svg>
