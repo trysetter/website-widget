@@ -8,7 +8,7 @@ A lightweight, customizable chatbot widget that can be embedded into any website
 - Expandable chat window with iframe support
 - Style isolation using Shadow DOM (won't conflict with existing site styles)
 - Customizable colors, positions, and sizes
-- Smooth animations and transitions
+- Smooth animations and transitionsw
 
 ## Installation
 
@@ -77,7 +77,7 @@ interface ChatbotWidgetConfig {
         width?: string;
         height?: string;
     };
-    botIntegraionId?: string; // ID of the bot integration to use
+    botIntegrationId?: string; // ID of the bot integration to use
 }
 ```
 
@@ -94,3 +94,21 @@ chatbot.hide();
 chatbot.openChat();
 chatbot.closeChat();
 ```
+
+## Release Process
+
+To create a new release:
+
+1. Make changes on the `main` branch
+2. Determine the next version number following semantic versioning principles (check `git tag` to see last releases)
+3. Push changes to `main`
+4. Wait for GitHub Actions to complete the build process for the `releases` branch
+5. Create a tag with the new version for the commit on the `releases` branch:
+   ```bash
+   git tag -a v1.0.0 -m "Release v1.0.0: brief description of changes"
+   git push origin v1.0.0
+   ```
+6. Purge the jsDelivr URL cache for the `releases` branch
+7. Verify changes are reflected on:
+   - The jsDelivr URL for the `releases` branch: `https://cdn.jsdelivr.net/gh/trysetter/website-widget@releases/chatbot-widget.js`
+   - The version-specific URL: `https://cdn.jsdelivr.net/gh/trysetter/website-widget@v1.0.0/chatbot-widget.js`
