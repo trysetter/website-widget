@@ -19,6 +19,7 @@ interface ChatbotWidgetConfig {
 interface ConfigurationResponse {
     data: {
         hideBranding: boolean;
+        buttonType?: string;
         [key: string]: any;
     };
 }
@@ -34,6 +35,7 @@ class ChatbotWidget {
     private resizeHandler: (() => void) | null = null;
     private hasValidConfig: boolean = false;
     private hideBranding: boolean = false;
+    private buttonType: string = '';
     private configFetched: boolean = false;
 
     constructor(config: ChatbotWidgetConfig = {}) {
@@ -114,9 +116,13 @@ class ChatbotWidget {
             
             const data = await response.json() as ConfigurationResponse;
             
+            // Log the received configuration
+            // console.log('[Setter AI] Widget configuration received:', data);
+            
             // Update config with fetched values
             if (data && data.data) {
                 this.hideBranding = data.data.hideBranding;
+                this.buttonType = data.data.buttonType || '';
             }
             
             this.configFetched = true;
@@ -137,65 +143,8 @@ class ChatbotWidget {
         const styles = document.createElement('style');
         styles.id = styleId;
         styles.textContent = `
-            #chatbot-widget-container .chatbot-widget-button {
-                position: fixed;
-                bottom: ${this.config.position?.bottom};
-                right: ${this.config.position?.right};
-                width: ${this.config.size?.width};
-                height: ${this.config.size?.height};
-                border-radius: 50%;
-                background-color: ${this.config.colors?.primary};
-                box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: transform 0.2s ease;
-                z-index: 9999;
-                border: none;
-                padding: 0;
-                margin: 0;
-                /* Reset any inherited styles */
-                font-size: 16px;
-                line-height: 1;
-                color: ${this.config.colors?.iconFill};
-                text-decoration: none;
-                box-sizing: border-box;
-            }
-
-            #chatbot-widget-container .chatbot-widget-button:hover {
-                transform: scale(1.05);
-            }
-
-            #chatbot-widget-container .chatbot-widget-button svg {
-                width: 32px;
-                height: 32px;
-                fill: ${this.config.colors?.iconFill};
-                transition: opacity 0.3s ease, transform 0.3s ease;
-            }
-
-            #chatbot-widget-container .chatbot-widget-button .chat-icon,
-            #chatbot-widget-container .chatbot-widget-button .close-icon {
-                position: absolute;
-                opacity: 1;
-                transform: rotate(0deg) scale(1);
-            }
-
-            #chatbot-widget-container .chatbot-widget-button .close-icon {
-                opacity: 0;
-                transform: rotate(-180deg) scale(0.5);
-            }
-
-            #chatbot-widget-container .chatbot-widget-button.open .chat-icon {
-                opacity: 0;
-                transform: rotate(180deg) scale(0.5);
-            }
-
-            #chatbot-widget-container .chatbot-widget-button.open .close-icon {
-                opacity: 1;
-                transform: rotate(0deg) scale(1);
-            }
-
+            ${this.getButtonStyles()}
+            
             #chatbot-widget-container .chatbot-window {
                 position: fixed;
                 bottom: calc(${this.config.position?.bottom} + 70px);
@@ -380,12 +329,97 @@ class ChatbotWidget {
         document.head.appendChild(styles);
     }
 
-    private createButton(): void {
-        const chatButton = document.createElement('div');
-        chatButton.className = 'chatbot-widget-button';
+    private getButtonStyles(): string {
+        const buttonType = this.buttonType || 'classic';
         
-        // Add chat and close icons
-        chatButton.innerHTML = `
+        switch (buttonType) {
+            case 'live_agent':
+                // TODO: Add live_agent specific styles here
+                return this.getClassicButtonStyles();
+            case 'classic':
+            default:
+                return this.getClassicButtonStyles();
+        }
+    }
+
+    private getClassicButtonStyles(): string {
+        return `
+            #chatbot-widget-container .chatbot-widget-button {
+                position: fixed;
+                bottom: ${this.config.position?.bottom};
+                right: ${this.config.position?.right};
+                width: ${this.config.size?.width};
+                height: ${this.config.size?.height};
+                border-radius: 50%;
+                background-color: ${this.config.colors?.primary};
+                box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: transform 0.2s ease;
+                z-index: 9999;
+                border: none;
+                padding: 0;
+                margin: 0;
+                /* Reset any inherited styles */
+                font-size: 16px;
+                line-height: 1;
+                color: ${this.config.colors?.iconFill};
+                text-decoration: none;
+                box-sizing: border-box;
+            }
+
+            #chatbot-widget-container .chatbot-widget-button:hover {
+                transform: scale(1.05);
+            }
+
+            #chatbot-widget-container .chatbot-widget-button svg {
+                width: 32px;
+                height: 32px;
+                fill: ${this.config.colors?.iconFill};
+                transition: opacity 0.3s ease, transform 0.3s ease;
+            }
+
+            #chatbot-widget-container .chatbot-widget-button .chat-icon,
+            #chatbot-widget-container .chatbot-widget-button .close-icon {
+                position: absolute;
+                opacity: 1;
+                transform: rotate(0deg) scale(1);
+            }
+
+            #chatbot-widget-container .chatbot-widget-button .close-icon {
+                opacity: 0;
+                transform: rotate(-180deg) scale(0.5);
+            }
+
+            #chatbot-widget-container .chatbot-widget-button.open .chat-icon {
+                opacity: 0;
+                transform: rotate(180deg) scale(0.5);
+            }
+
+            #chatbot-widget-container .chatbot-widget-button.open .close-icon {
+                opacity: 1;
+                transform: rotate(0deg) scale(1);
+            }
+        `;
+    }
+
+    private getButtonContent(): string {
+        const buttonType = this.buttonType || 'classic';
+        
+        switch (buttonType) {
+            case 'live_agent':
+                // TODO: Add live_agent button content here
+                return this.getClassicButtonContent();
+            case 'classic':
+            default:
+                return this.getClassicButtonContent();
+        }
+    }
+
+    private getClassicButtonContent(): string {
+        return `
             <svg class="chat-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
             </svg>
@@ -393,6 +427,14 @@ class ChatbotWidget {
                 <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
             </svg>
         `;
+    }
+
+    private createButton(): void {
+        const chatButton = document.createElement('div');
+        chatButton.className = 'chatbot-widget-button';
+        
+        // Add button content based on button type
+        chatButton.innerHTML = this.getButtonContent();
 
         // Add click event listener
         chatButton.addEventListener('click', this.handleClick.bind(this));

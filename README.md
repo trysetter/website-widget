@@ -77,7 +77,7 @@ interface ChatbotWidgetConfig {
         width?: string;
         height?: string;
     };
-    botIntegraionId?: string; // ID of the bot integration to use
+    botIntegrationId?: string; // ID of the bot integration to use
 }
 ```
 
