@@ -27,7 +27,11 @@ jobs:
       - run: npm install
       - run: npm run build
 
-      # 4) Upload “dist” as artifact
+      # 4) Copy assets to dist folder
+      - name: Copy assets
+        run: cp -r src/assets dist/
+
+      # 5) Upload "dist" as artifact
       - name: Upload dist
         uses: actions/upload-artifact@v4
         with:
@@ -55,7 +59,7 @@ jobs:
       - name: List downloaded files
         run: ls -R _dist_artifact
 
-      # 4) Switch to (or create) the “releases” branch and remove old files
+      # 4) Switch to (or create) the "releases" branch and remove old files
       - name: Switch to releases branch
         run: |
           if git show-ref --verify --quiet refs/heads/releases; then

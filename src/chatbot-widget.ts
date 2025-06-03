@@ -509,7 +509,12 @@ class ChatbotWidget {
     }
 
     private getLiveAgentButtonContent(): string {
-        const imageUrl = `/src/assets/live_agent_woman_face.png`;
+        // Use jsdelivr URL for production, local path for development
+        const isProduction = this.config.baseUrl === DEFAULT_BASE_URL;
+        const imageUrl = isProduction 
+            ? `https://cdn.jsdelivr.net/gh/trysetter/website-widget@releases/assets/live_agent_woman_face.png`
+            : `/src/assets/live_agent_woman_face.png`;
+            
         return `
             <img src="${imageUrl}" alt="Live Agent" class="live-agent-image" />
             <div class="availability-indicator"></div>
