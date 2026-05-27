@@ -20,6 +20,13 @@ interface ConfigurationResponse {
     data: {
         hideBranding: boolean;
         buttonType?: string;
+        // Per-bot widget branding resolved by the app. `avatarUrl` is absolute and always
+        // present (the app applies a default), and is the same image shown in the chat
+        // header inside the iframe — so the floating button can mirror it exactly.
+        branding?: {
+            title?: string;
+            avatarUrl?: string;
+        };
         [key: string]: any;
     };
 }
@@ -36,6 +43,7 @@ class ChatbotWidget {
     private hasValidConfig: boolean = false;
     private hideBranding: boolean = false;
     private buttonType: string = '';
+    private avatarUrl: string = '';
     private configFetched: boolean = false;
 
     constructor(config: ChatbotWidgetConfig = {}) {
@@ -123,6 +131,7 @@ class ChatbotWidget {
             if (data && data.data) {
                 this.hideBranding = data.data.hideBranding;
                 this.buttonType = data.data.buttonType || '';
+                this.avatarUrl = data.data.branding?.avatarUrl || '';
             }
             
             this.configFetched = true;
@@ -509,12 +518,19 @@ class ChatbotWidget {
     }
 
     private getLiveAgentButtonContent(): string {
-        // Use jsdelivr URL for production, local path for development
+        // Bundled fallback image. Used only when the configuration endpoint didn't supply
+        // an avatar URL (older app version, or the config fetch failed). jsdelivr for
+        // production, local path for development.
         const isProduction = this.config.baseUrl === DEFAULT_BASE_URL;
-        const imageUrl = isProduction 
+        const fallbackImageUrl = isProduction
             ? `https://cdn.jsdelivr.net/gh/trysetter/website-widget@releases/assets/live_agent_woman_face.png`
             : `/src/assets/live_agent_woman_face.png`;
-            
+
+        // Prefer the bot's configured avatar (served from the app's own domain). This is
+        // the exact same image the app renders in the chat-window header, so the floating
+        // button and the header always show the same picture.
+        const imageUrl = this.avatarUrl || fallbackImageUrl;
+
         return `
             <img src="${imageUrl}" alt="Live Agent" class="live-agent-image" />
             <div class="availability-indicator"></div>
